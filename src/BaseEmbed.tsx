@@ -41,7 +41,7 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
 
     useEffect(() => {
       if (!webViewRef.current || !vercelShellLoaded) {
-        console.log("[BaseEmbed] Waiting for Vercel shell to load...");
+        console.log("Vercel shell is not loaded yet");
         return;
       }
 
@@ -73,7 +73,7 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
         }
         embedBridge.handleMessage(msg);
       } catch (err) {
-        console.error("[BaseEmbed] handleMessage parse error:", err);
+        console.error("Unable to parse the message from the webview", err);
       }
     };
 
@@ -90,11 +90,11 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
         mixedContentMode="always"
         onError= {(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
-          console.warn("[BaseEmbed] WebView error: ", nativeEvent);
+          console.warn("error in the webview", nativeEvent);
         }}
         onHttpError= {(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
-          console.warn("[BaseEmbed] HTTP error: ", nativeEvent);
+          console.warn("HTTP error in the webview", nativeEvent);
         }}
         style={{ flex: 1 }}
       />

@@ -25,7 +25,7 @@ export class EmbedBridge {
 
   public trigger(hostEventName: string, payload?: any): Promise<any> {
     if (!this.webViewRef.current) {
-      console.warn("[EmbedBridge.trigger] WebView is not ready");
+      console.warn("webview is not ready for host event");
       return Promise.resolve(undefined);
     }
     return new Promise((resolve) => {
@@ -67,7 +67,7 @@ export class EmbedBridge {
         break;
       }
       default:
-        console.log("[EmbedBridge] Unknown message type:", msg.type);
+        console.log("Type of the message is unknown from the Shell app", msg.type);
     }
   }
 
