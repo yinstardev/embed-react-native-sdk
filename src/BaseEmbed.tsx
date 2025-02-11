@@ -80,7 +80,7 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
     return (
       <WebView
         ref={webViewRef}
-        source={{ uri: "https://journey-withdrawal-such-folders.trycloudflare.com" }}
+        source={{ uri: "https://embed-vercel-shell.vercel.app" }}
         onMessage={handleMessage}
         javaScriptEnabled={true}
         domStorageEnabled={true}
