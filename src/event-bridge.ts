@@ -1,5 +1,6 @@
 import type { WebView } from "react-native-webview";
 import { authFunctionCache } from "./init";
+import { Alert } from "react-native";
 
 export interface EmbedMessage {
   type: string; 
@@ -44,22 +45,26 @@ export class EmbedBridge {
   handleMessage(msg: any) {
     switch (msg.type) {
       case "REQUEST_AUTH_TOKEN": {
+         Alert.alert("REQUEST_AUTH_TOKEN");
           authFunctionCache?.().then((token: string) => {
               const replyTokenData = {
                   type: 'AUTH_TOKEN_RESPONSE',
                   token,
               };
+              Alert.alert(token);
               this.sendMessage(replyTokenData);
           })
           break;
       }
       case "EMBED_EVENT": {
+        Alert.alert("EMBED_EVENT");
         if (msg.eventName) {
           this.triggerEmbedEvent(msg.eventName, msg.payload);
         }
         break;
       }
       case "HOST_EVENT_REPLY": {
+        Alert.alert("HOST_EVENT_REPLY");
         if (msg.eventId && this.pendingReplies[msg.eventId]) {
           this.pendingReplies[msg.eventId](msg.payload);
           delete this.pendingReplies[msg.eventId];
