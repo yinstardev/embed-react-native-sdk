@@ -9,7 +9,6 @@ import React, {
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { EmbedBridge, EmbedMessage } from "./event-bridge";
 import { embedConfigCache } from "./init";
-import { Alert } from "react-native";
 
 interface BaseEmbedProps {
   typeofEmbed: string;
@@ -42,13 +41,13 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
 
     useEffect(() => {
       if (!webViewRef.current || !vercelShellLoaded) {
-        console.log("Vercel shell is not loaded yet");
+        console.log("[BaseEmbed] Waiting for Vercel shell to load...");
         return;
       }
 
       const initMsg = {
         type: "INIT",
-        payload: embedConfigCache, 
+        payload: embedConfigCache,
       };
       embedBridge.sendMessage(initMsg);
 
@@ -72,7 +71,6 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
         if (msg.type === "INIT_VERCEL_SHELL") {
           setVercelShellLoaded(true);
         }
-        Alert.alert(msg);
         embedBridge.handleMessage(msg);
       } catch (err) {
         console.error("Unable to parse the message from the webview", err);
@@ -94,11 +92,17 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
           const { nativeEvent } = syntheticEvent;
           console.warn("error in the webview", nativeEvent);
         }}
+        keyboardDisplayRequiresUserAction={false}  // Add this for iOS
+        automaticallyAdjustContentInsets={false}   // Add this
+        scrollEnabled={false}  
         onHttpError= {(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
           console.warn("HTTP error in the webview", nativeEvent);
         }}
-        style={{ flex: 1 }}
+        style={{ flex: 1,
+          height: '100%',                          // Explicit height
+          width: '100%'  
+         }}
       />
     );
   }
