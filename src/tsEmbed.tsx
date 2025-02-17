@@ -1,4 +1,4 @@
-import WebView, { WebViewMessageEvent } from "react-native-webview";
+import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { EmbedBridge } from "./event-bridge";
 import React from "react";
 import { ViewConfig } from "./types";
