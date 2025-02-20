@@ -43,14 +43,26 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         const embedInstance = React.useRef<InstanceType<T> | null>(null);
         const webViewRef = React.useRef<WebView>(null);
         
+        // Create the instance immediately
+        if (!embedInstance.current) {
+            embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
+        }
+        
+        // Memoize the rendered WebView
+        const renderedWebView = React.useMemo(() => {
+            return embedInstance?.current?.render();
+        }, []);
+        
         React.useEffect(() => {
             const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
             
-            embedInstance.current = new EmbedConstructor(webViewRef, viewConfig) as InstanceType<T>;
-
-            Object.entries(listeners).forEach(([eventName, callback]) => {
-                embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
-            });
+            if (embedInstance.current) {
+                embedInstance.current.updateConfig(viewConfig);
+                
+                Object.entries(listeners).forEach(([eventName, callback]) => {
+                    embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
+                });
+            }
 
             if (forwardedRef && typeof forwardedRef === 'object') {
                 forwardedRef.current = embedInstance.current;
@@ -61,10 +73,6 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             };
         }, [props]); 
 
-        if (!embedInstance.current) {
-            return null;
-        }
-
-        return embedInstance.current.getComponent();
+        return renderedWebView;
     }
 ); 

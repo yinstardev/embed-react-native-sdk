@@ -1,6 +1,6 @@
 import { TSEmbed } from './tsEmbed';
 import { componentFactory } from './componentFactory';
-import { ViewConfig, LiveboardViewConfig } from './types';
+import { LiveboardViewConfig } from './types';
 import WebView from 'react-native-webview';
 import { EmbedProps } from './util';
 
