@@ -13,7 +13,7 @@ class LiveboardEmbedClass<T extends LiveboardViewConfig = LiveboardViewConfig> e
 
 export interface LiveboardEmbedProps extends LiveboardViewConfig, EmbedProps {}
 
-export const LiveboardEmbedClassX: React.ComponentType<LiveboardEmbedProps> = componentFactory<
+export const LiveboardEmbed: React.FC<LiveboardEmbedProps> = componentFactory<
     typeof LiveboardEmbedClass,
     LiveboardViewConfig,
     LiveboardEmbedProps

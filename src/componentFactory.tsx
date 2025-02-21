@@ -43,7 +43,7 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         const embedInstance = React.useRef<InstanceType<T> | null>(null);
         const webViewRef = React.useRef<WebView>(null);
         
-        // Create the instance immediately
+        // Creating the instance immediately
         if (!embedInstance.current) {
             embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
         }

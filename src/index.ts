@@ -1,4 +1,4 @@
 import { init } from "./init";
-import { LiveboardEmbedClassX } from "./LiveboardEmbedClass";
+import { LiveboardEmbed } from "./LiveboardEmbedClass";
 
-export { init, LiveboardEmbedClassX };
+export { init, LiveboardEmbed };
