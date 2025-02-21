@@ -11,55 +11,54 @@ export interface EmbedMessage {
 }
 
 export class EmbedBridge {
-  private events: Record<string, Function[]> = {};
+  private eventHandlers: Record<string, Function[]> = {};
   private pendingReplies: Record<string, Function> = {};
 
   constructor(private webViewRef: React.RefObject<WebView>) {}
 
-  registerEmbedEvent(eventName: string, callback: Function) {
-    if (!this.events[eventName]) {
-      this.events[eventName] = [];
+  public on(eventName: string, callback: Function) {
+    if (!this.eventHandlers[eventName]) {
+      this.eventHandlers[eventName] = [];
     }
-    this.events[eventName].push(callback);
+    this.eventHandlers[eventName].push(callback);
   }
 
-  public trigger(hostEventName: string, payload?: any): Promise<any> {
+  public emit(eventName: string, payload?: any): Promise<any> {
     if (!this.webViewRef.current) {
-      console.warn("webview is not ready for host event");
+      console.warn("webview is not ready for event:", eventName);
       return Promise.resolve(undefined);
     }
+
     return new Promise((resolve) => {
       const eventId = this.generateEventId();
       this.pendingReplies[eventId] = resolve;
-      const message = {
-        type: "HOST_EVENT",
+      
+      this.sendMessage({
+        type: 'EVENT',
         eventId,
-        eventName: hostEventName,
+        eventName,
         payload,
-      };
-      this.sendMessage(message);
+      });
     });
   }
 
   handleMessage(msg: any) {
     switch (msg.type) {
       case "REQUEST_AUTH_TOKEN": {
-          authFunctionCache?.().then((token: string) => {
-              const replyTokenData = {
-                  type: 'AUTH_TOKEN_RESPONSE',
-                  token,
-              };
-              this.sendMessage(replyTokenData);
-          })
-          break;
+        authFunctionCache?.().then((token: string) => {
+          this.sendMessage({ type: 'AUTH_TOKEN_RESPONSE',token });
+        });
+        break;
       }
-      case "EMBED_EVENT": {
-        if (msg.eventName) {
-          this.triggerEmbedEvent(msg.eventName, msg.payload);
+      case "EVENT": {
+        if (msg.hasResponder) {
+          this.triggerEventWithResponder(msg.eventName, msg.payload, msg.eventId);
+        } else {
+          this.triggerEvent(msg.eventName, msg.payload);
         }
         break;
       }
-      case "HOST_EVENT_REPLY": {
+      case "EVENT_REPLY": {
         if (msg.eventId && this.pendingReplies[msg.eventId]) {
           this.pendingReplies[msg.eventId](msg.payload);
           delete this.pendingReplies[msg.eventId];
@@ -71,12 +70,25 @@ export class EmbedBridge {
     }
   }
 
-  private triggerEmbedEvent(eventName: string, data: any) {
-    const callbacks = this.events[eventName] || [];
-    callbacks.forEach((cb) => cb(data));
+  private triggerEvent(eventName: string, data: any) {
+    const handlers = this.eventHandlers[eventName] || [];
+    handlers.forEach(handler => handler(data));
   }
 
-  public sendMessage(msg: EmbedMessage) {
+  private triggerEventWithResponder(eventName: string, data: any, eventId: string) {
+    const handlers = this.eventHandlers[eventName] || [];
+    handlers.forEach(handler => {
+      handler(data, (responseData: any) => {
+        this.sendMessage({
+          type: 'EVENT_REPLY',
+          eventId,
+          payload: responseData
+        });
+      });
+    });
+  }
+
+  public sendMessage(msg: any) {
     const msgString = JSON.stringify(msg);
     const jsCode = `window.postMessage(${msgString}, "*");true;`;
     this.webViewRef.current?.injectJavaScript(jsCode);
@@ -84,5 +96,11 @@ export class EmbedBridge {
 
   private generateEventId(): string {
     return `evt_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+  }
+  
+  public destroy() {
+    this.eventHandlers = {};
+    this.pendingReplies = {};
+    this.webViewRef = { current: null };
   }
 }
