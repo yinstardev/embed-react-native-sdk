@@ -1,6 +1,6 @@
 {
   "name": "embed-react-native-sdk",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "React Native SDK for Embedding TS",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -18,15 +18,11 @@
     "@rollup/plugin-commonjs": "^28.0.2",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@types/react": "*",
     "rollup": "^4.32.0",
     "rollup-plugin-dts": "^6.1.1",
     "typescript": "^5.7.3"
   },
   "scripts": {
     "build": "rollup -c"
-  },
-  "compilerOptions": {
-    "types": ["react-native"]
   }
 }
