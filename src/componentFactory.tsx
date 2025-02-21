@@ -39,7 +39,7 @@ const getViewPropsAndListeners = <T extends EmbedProps, U extends ViewConfig>(
 export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig, U extends EmbedProps>(
     EmbedConstructor: T,
 ) => React.forwardRef<InstanceType<T>, U>(
-    (props, forwardedRef) => {
+    (props, forwardedRef): JSX.Element => {
         const embedInstance = React.useRef<InstanceType<T> | null>(null);
         const webViewRef = React.useRef<WebView>(null);
         
@@ -73,6 +73,6 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             };
         }, [props]); 
 
-        return renderedWebView;
+        return renderedWebView as JSX.Element;
     }
 ); 
