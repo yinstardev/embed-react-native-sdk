@@ -71,6 +71,6 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             });
         }, [props]); 
 
-        return renderedWebView || <View></View>;
+        return renderedWebView || <></>;
     }
 ); 
