@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { WebView } from 'react-native-webview';
 import { TSEmbed } from './tsEmbed';
 import { 
@@ -43,28 +43,34 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         const embedInstance = React.useRef<InstanceType<T> | null>(null);
         const webViewRef = React.useRef<WebView>(null);
         
+        if(!embedInstance.current) {
+            embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
+        }
+
+        const renderedWebView = React.useMemo(() => {
+            return embedInstance.current?.render();
+        }, []);
+
+        React.useEffect(() => {
+            
+            return () => {
+                embedInstance.current?.destroy();
+                embedInstance.current = null;
+            }
+        }, [])
+        
         React.useEffect(() => {
             const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
-            
-            embedInstance.current = new EmbedConstructor(webViewRef, viewConfig) as InstanceType<T>;
+            if(forwardedRef && typeof forwardedRef == 'object') {
+                forwardedRef.current = embedInstance?.current;
+            }
+            embedInstance?.current?.updateConfig(viewConfig);
 
             Object.entries(listeners).forEach(([eventName, callback]) => {
                 embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
             });
-
-            if (forwardedRef && typeof forwardedRef === 'object') {
-                forwardedRef.current = embedInstance.current;
-            }
-
-            return () => {
-                embedInstance.current?.destroy();
-            };
         }, [props]); 
 
-        if (!embedInstance.current) {
-            return null;
-        }
-
-        return embedInstance.current.getComponent();
+        return renderedWebView;
     }
 ); 
