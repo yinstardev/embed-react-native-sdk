@@ -91,7 +91,7 @@ export class TSEmbed<T extends ViewConfig = ViewConfig> {
        
     }
 
-    public render() {
+    public render(): JSX.Element {
         return (
             <WebView
               ref={this.webViewRef}
