@@ -69,7 +69,11 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             Object.entries(listeners).forEach(([eventName, callback]) => {
                 embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
             });
-        }, [props]); 
+        }, [props]);
+
+        if(!embedInstance.current) {
+            return null;
+        }
 
         return renderedWebView || <></> as JSX.Element;
     }
