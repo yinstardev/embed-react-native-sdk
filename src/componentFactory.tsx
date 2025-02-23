@@ -47,12 +47,11 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
         }
 
-        const renderedWebView = React.useMemo(() => {
-            return embedInstance.current?.render();
+        const renderedWebView = React.useMemo((): JSX.Element | null => {
+            return embedInstance.current?.render() ?? null;
         }, []);
 
         React.useEffect(() => {
-            
             return () => {
                 embedInstance.current?.destroy();
                 embedInstance.current = null;
@@ -75,6 +74,6 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
             return null;
         }
 
-        return renderedWebView || <></> as JSX.Element;
+        return renderedWebView ?? null;
     }
 ); 
