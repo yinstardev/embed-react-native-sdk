@@ -19,6 +19,4 @@ const LiveboardEmbedComponent = componentFactory<
     LiveboardEmbedProps
 >(LiveboardEmbedClass);
 
-export const LiveboardEmbed = React.memo(LiveboardEmbedComponent) as React.FC<
-    LiveboardEmbedProps & React.RefAttributes<LiveboardEmbedClass<LiveboardViewConfig>>
->;
+export const LiveboardEmbed = React.memo(LiveboardEmbedComponent) as typeof LiveboardEmbedComponent;
