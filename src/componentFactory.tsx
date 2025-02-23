@@ -48,7 +48,7 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
 
     const renderedWebView = React.useMemo((): JSX.Element | null => {
         return embedInstance.current?.render() ?? null;
-    }, []);
+    }, [props]);
 
     React.useEffect(() => {
         return () => {
