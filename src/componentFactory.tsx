@@ -38,42 +38,40 @@ const getViewPropsAndListeners = <T extends EmbedProps, U extends ViewConfig>(
 
 export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig, U extends EmbedProps>(
     EmbedConstructor: T,
-) => React.forwardRef<InstanceType<T>, U>(
-    (props, forwardedRef) => {
-        const embedInstance = React.useRef<InstanceType<T> | null>(null);
-        const webViewRef = React.useRef<WebView>(null);
-        
-        if(!embedInstance.current) {
-            embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
-        }
-
-        const renderedWebView = React.useMemo((): JSX.Element | null => {
-            return embedInstance.current?.render() ?? null;
-        }, []);
-
-        React.useEffect(() => {
-            return () => {
-                embedInstance.current?.destroy();
-                embedInstance.current = null;
-            }
-        }, [])
-        
-        React.useEffect(() => {
-            const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
-            if(forwardedRef && typeof forwardedRef == 'object') {
-                forwardedRef.current = embedInstance?.current;
-            }
-            embedInstance?.current?.updateConfig(viewConfig);
-
-            Object.entries(listeners).forEach(([eventName, callback]) => {
-                embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
-            });
-        }, [props]);
-
-        if(!embedInstance.current) {
-            return null;
-        }
-
-        return renderedWebView ?? null;
+) => React.forwardRef<InstanceType<T>, U>((props, forwardedRef): JSX.Element | null => {
+    const embedInstance = React.useRef<InstanceType<T> | null>(null);
+    const webViewRef = React.useRef<WebView>(null);
+    
+    if(!embedInstance.current) {
+        embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
     }
-); 
+
+    const renderedWebView = React.useMemo((): JSX.Element | null => {
+        return embedInstance.current?.render() ?? null;
+    }, []);
+
+    React.useEffect(() => {
+        return () => {
+            embedInstance.current?.destroy();
+            embedInstance.current = null;
+        }
+    }, [])
+    
+    React.useEffect(() => {
+        const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
+        if(forwardedRef && typeof forwardedRef == 'object') {
+            forwardedRef.current = embedInstance?.current;
+        }
+        embedInstance?.current?.updateConfig(viewConfig);
+
+        Object.entries(listeners).forEach(([eventName, callback]) => {
+            embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
+        });
+    }, [props]);
+
+    if(!embedInstance.current) {
+        return null;
+    }
+
+    return renderedWebView ?? null;
+}); 
