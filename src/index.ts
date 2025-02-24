@@ -1,14 +1,5 @@
-import { useLiveboardRef } from "./hooks/useLiveboardRef";
 import { init } from "./init";
-import { LiveboardEmbed, LiveboardEmbedRef } from "./LiveboardEmbed";
+import { LiveboardEmbed } from "./LiveboardEmbedClass";
+import { AuthType, ViewConfig } from "./types";
 
-
-export { init, LiveboardEmbed, useLiveboardRef };
-export type { LiveboardEmbedRef };
-
-const EmbedReactNativeSDK = {
-  init,
-  LiveboardEmbed,
-  useLiveboardRef,
-};
-export default EmbedReactNativeSDK;
+export { init, LiveboardEmbed, AuthType, ViewConfig };

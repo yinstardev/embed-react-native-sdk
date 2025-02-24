@@ -85,4 +85,10 @@ export class EmbedBridge {
   private generateEventId(): string {
     return `evt_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
   }
+  
+  public destroy() {
+    this.events = {};
+    this.pendingReplies = {};
+    this.webViewRef = { current: null };
+  }
 }
