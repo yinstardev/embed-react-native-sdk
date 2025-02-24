@@ -9,12 +9,13 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "use-deep-compare-effect": "^1.8.1"
+    "use-deep-compare-effect": "^1.8.1",
+    "react-native-webview": "*"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-native": ">=0.60.0",
-    "react-native-webview": ">=11.0.0"
+    "react-native-webview": "*"
   },
   "peerDependenciesMeta": {
     "@types/react": {

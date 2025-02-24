@@ -3,7 +3,8 @@ import { EmbedBridge } from "./event-bridge";
 import React from "react";
 import { ViewConfig } from "./types";
 import { embedConfigCache } from "./init";
-
+import * as Constants from './constants';
+import { MSG_TYPE, DEFAULT_WEBVIEW_CONFIG } from './constants';
 
 export class TSEmbed<T extends ViewConfig = ViewConfig> {
     protected webViewRef: React.RefObject<WebView>;
@@ -36,14 +37,14 @@ export class TSEmbed<T extends ViewConfig = ViewConfig> {
         }
 
         const initMsg = {
-            type: "INIT",
+            type: MSG_TYPE.INIT,
             payload: embedConfigCache,
         };
 
         this.embedBridge?.sendMessage(initMsg);
 
         const message = {
-            type: "EMBED",
+            type: MSG_TYPE.EMBED,
             embedType: this.getEmbedType(),
             viewConfig: this.viewConfig,
         };
@@ -65,59 +66,41 @@ export class TSEmbed<T extends ViewConfig = ViewConfig> {
         return this.embedBridge?.trigger(hostEventName, payload);
       }
 
-    public handleMessage(event: WebViewMessageEvent) {
+    private handleInitVercelShell() {
+        this.vercelShellLoaded = true;
+        this.embedBridge = new EmbedBridge(this.webViewRef);
+        
+        this.pendingHandlers.forEach(([eventName, callback]) => {
+            this.embedBridge?.registerEmbedEvent(eventName, callback);
+        });
+        this.pendingHandlers = [];
+        this.sendConfigToShell();
+    }
+
+    private handleMessage(event: WebViewMessageEvent) {
         try {
             const msg = JSON.parse(event.nativeEvent.data);
-            if (msg.type === "INIT_VERCEL_SHELL") {
-                this.vercelShellLoaded = true;
-                this.embedBridge = new EmbedBridge(this.webViewRef);
-                
-                // Process pending handlers
-                this.pendingHandlers.forEach(([eventName, callback]) => {
-                    this.embedBridge?.registerEmbedEvent(eventName, callback);
-                });
-                this.pendingHandlers = [];
-                
-                this.sendConfigToShell();
+            if (msg.type === MSG_TYPE.INIT_VERCEL_SHELL) {
+                this.handleInitVercelShell();
             }
             this.embedBridge?.handleMessage(msg);
         } catch (err) {
-            console.error("[TsEmbed] handleMessage parse error:", err);
+            console.error("HandleMessage parse error:", err);
         }
     }
     
     public destroy() {
         this.embedBridge?.destroy();
-       
+        this.embedBridge = null;
     }
 
     public render(): JSX.Element {
         return (
             <WebView
               ref={this.webViewRef}
-              source={{ uri: "https://embed-vercel-shell-git-class-based-final-yinstardevs-projects.vercel.app" }}
+              source={{ uri: Constants.VERCEL_SHELL_URL }}
               onMessage={this.handleMessage}
-              javaScriptEnabled={true}
-              domStorageEnabled={true}
-              allowFileAccess={true}
-              allowUniversalAccessFromFileURLs={true}
-              allowFileAccessFromFileURLs={true}
-              mixedContentMode="always"
-              onError= {(syntheticEvent) => {
-                const { nativeEvent } = syntheticEvent;
-                console.warn("error in the webview", nativeEvent);
-              }}
-              keyboardDisplayRequiresUserAction={false}
-              automaticallyAdjustContentInsets={false}
-              scrollEnabled={false}  
-              onHttpError= {(syntheticEvent) => {
-                const { nativeEvent } = syntheticEvent;
-                console.warn("HTTP error in the webview", nativeEvent);
-              }}
-              style={{ flex: 1,
-                height: '100%',                    
-                width: '100%'  
-               }}
+              {...DEFAULT_WEBVIEW_CONFIG}
             />
           );
     }

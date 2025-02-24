@@ -1,8 +1,9 @@
 import type { WebView } from "react-native-webview";
 import { authFunctionCache } from "./init";
+import { MSG_TYPE } from './constants';
 
 export interface EmbedMessage {
-  type: string; 
+  type: MSG_TYPE; 
   eventName?: string;           
   eventId?: string; 
   payload?: any;
@@ -32,7 +33,7 @@ export class EmbedBridge {
       const eventId = this.generateEventId();
       this.pendingReplies[eventId] = resolve;
       const message = {
-        type: "HOST_EVENT",
+        type: MSG_TYPE.HOST_EVENT,
         eventId,
         eventName: hostEventName,
         payload,
@@ -43,17 +44,17 @@ export class EmbedBridge {
 
   handleMessage(msg: any) {
     switch (msg.type) {
-      case "REQUEST_AUTH_TOKEN": {
+      case MSG_TYPE.REQUEST_AUTH_TOKEN: {
           authFunctionCache?.().then((token: string) => {
               const replyTokenData = {
-                  type: 'AUTH_TOKEN_RESPONSE',
+                  type: MSG_TYPE.AUTH_TOKEN_RESPONSE,
                   token,
               };
               this.sendMessage(replyTokenData);
           })
           break;
       }
-      case "EMBED_EVENT": {
+      case MSG_TYPE.EMBED_EVENT: {
         if(msg?.hasResponder) {
           this.triggerEventWithResponder(msg.eventName, msg.payload, msg.eventId);
         } else {
@@ -61,7 +62,7 @@ export class EmbedBridge {
         }
         break;
       }
-      case "HOST_EVENT_REPLY": {
+      case MSG_TYPE.HOST_EVENT_REPLY: {
         if (msg.eventId && this.pendingReplies[msg.eventId]) {
           this.pendingReplies[msg.eventId](msg.payload);
           delete this.pendingReplies[msg.eventId];
@@ -83,7 +84,7 @@ export class EmbedBridge {
     handlers.forEach(handler => {
       handler(data, (responseData: any) => {
         this.sendMessage({
-          type: 'EVENT_REPLY',
+          type: MSG_TYPE.EMBED_EVENT_REPLY,
           eventId,
           payload: responseData
         });
