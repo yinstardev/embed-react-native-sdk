@@ -8,7 +8,9 @@
   "files": [
     "dist/**/*"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "use-deep-compare-effect": "^1.8.1"
+  },
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-native": ">=0.60.0",

@@ -1,5 +1,6 @@
 import React, { forwardRef } from 'react';
 import { WebView } from 'react-native-webview';
+import useDeepCompareEffect from 'use-deep-compare-effect';
 import { TSEmbed } from './tsEmbed';
 import { 
     EmbedEvent,
@@ -50,6 +51,8 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         return embedInstance.current?.render() ?? null;
     }, [props]);
 
+    const { viewConfig, listeners } = React.useMemo(() => getViewPropsAndListeners<U, V>(props as U), [props]);
+
     React.useEffect(() => {
         return () => {
             embedInstance.current?.destroy();
@@ -57,8 +60,7 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         }
     }, [])
     
-    React.useEffect(() => {
-        const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
+    useDeepCompareEffect(() => {
         if(forwardedRef && typeof forwardedRef == 'object') {
             (forwardedRef as React.MutableRefObject<InstanceType<T> | null>).current = embedInstance?.current;
         }
@@ -67,7 +69,7 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
         Object.entries(listeners).forEach(([eventName, callback]) => {
             embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
         });
-    }, [props]);
+    }, [viewConfig]);
 
     if(!embedInstance.current) {
         return null;
