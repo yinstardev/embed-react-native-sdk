@@ -60,7 +60,7 @@ export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig,
     React.useEffect(() => {
         const { viewConfig, listeners } = getViewPropsAndListeners<U, V>(props as U);
         if(forwardedRef && typeof forwardedRef == 'object') {
-            forwardedRef.current = embedInstance?.current;
+            (forwardedRef as React.MutableRefObject<InstanceType<T> | null>).current = embedInstance?.current;
         }
         embedInstance?.current?.updateConfig(viewConfig);
 

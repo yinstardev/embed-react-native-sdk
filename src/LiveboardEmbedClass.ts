@@ -19,4 +19,4 @@ const LiveboardEmbedComponent = componentFactory<
     LiveboardEmbedProps
 >(LiveboardEmbedClass);
 
-export const LiveboardEmbed = React.memo(LiveboardEmbedComponent) as typeof LiveboardEmbedComponent;
+export const LiveboardEmbed = React.memo(LiveboardEmbedComponent) as React.NamedExoticComponent<LiveboardEmbedProps & React.RefAttributes<LiveboardEmbedClass<LiveboardViewConfig>>>; 
