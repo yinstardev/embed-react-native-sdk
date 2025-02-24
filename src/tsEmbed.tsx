@@ -95,7 +95,7 @@ export class TSEmbed<T extends ViewConfig = ViewConfig> {
         return (
             <WebView
               ref={this.webViewRef}
-              source={{ uri: "https://embed-vercel-shell.vercel.app" }}
+              source={{ uri: "https://embed-vercel-shell-git-class-based-final-yinstardevs-projects.vercel.app" }}
               onMessage={this.handleMessage}
               javaScriptEnabled={true}
               domStorageEnabled={true}

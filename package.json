@@ -1,6 +1,6 @@
 {
   "name": "embed-react-native-sdk",
-  "version": "3.0.9",
+  "version": "4.0.0",
   "description": "React Native SDK for Embedding TS",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

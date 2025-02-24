@@ -54,8 +54,10 @@ export class EmbedBridge {
           break;
       }
       case "EMBED_EVENT": {
-        if (msg.eventName) {
-          this.triggerEmbedEvent(msg.eventName, msg.payload);
+        if(msg?.hasResponder) {
+          this.triggerEventWithResponder(msg.eventName, msg.payload, msg.eventId);
+        } else {
+          this.triggerEvent(msg.eventName, msg.payload);
         }
         break;
       }
@@ -71,9 +73,22 @@ export class EmbedBridge {
     }
   }
 
-  private triggerEmbedEvent(eventName: string, data: any) {
-    const callbacks = this.events[eventName] || [];
-    callbacks.forEach((cb) => cb(data));
+  private triggerEvent(eventName: string, data: any) {
+    const handlers = this.events[eventName] || [];
+    handlers.forEach(handler => handler(data));
+  }
+
+  private triggerEventWithResponder(eventName: string, data: any, eventId: string) {
+    const handlers = this.events[eventName] || [];
+    handlers.forEach(handler => {
+      handler(data, (responseData: any) => {
+        this.sendMessage({
+          type: 'EVENT_REPLY',
+          eventId,
+          payload: responseData
+        });
+      });
+    });
   }
 
   public sendMessage(msg: EmbedMessage) {
