@@ -1,6 +1,6 @@
 {
   "name": "embed-react-native-sdk",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "React Native SDK for Embedding TS",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -9,13 +9,11 @@
     "dist/**/*"
   ],
   "dependencies": {
-    "use-deep-compare-effect": "^1.8.1",
-    "react-native-webview": "*"
+    "use-deep-compare-effect": "^1.8.1"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
-    "react-native": ">=0.60.0",
-    "react-native-webview": "*"
+    "react-native": ">=0.60.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -32,6 +30,9 @@
     "rollup": "^4.32.0",
     "rollup-plugin-dts": "^6.1.1",
     "typescript": "^5.7.3"
+  },
+  "optionalDependencies": {
+    "react-native-webview": "*"
   },
   "scripts": {
     "build": "rollup -c"
