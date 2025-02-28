@@ -1,11 +1,13 @@
-import { WebView } from "react-native-webview";
-import React, { useRef } from "react";
-
+import { EmbedConfig } from "./types";
 export let embedConfigCache: any = null;
-export let authFunctionCache: (() => Promise<string>) | null = null;
+export let authFunctionCache: (() => Promise<string>) | null | undefined = null;
+
+interface EmbedConfigMobile extends Omit<EmbedConfig, 'getTokenFromSDK'> {
+  getTokenFromSDK?: boolean;
+}
 
 // TODO : add the webview at the time of the init.
-export const init = (embedConfig: any) => {
+export const init = (embedConfig: EmbedConfigMobile) => {
   embedConfigCache = embedConfig;
   authFunctionCache = embedConfig.getAuthToken;
   embedConfigCache.getTokenFromSDK = true;
