@@ -2,12 +2,12 @@ import { TSEmbed } from './tsEmbed';
 import { componentFactory } from './componentFactory';
 import { LiveboardViewConfig } from './types';
 import WebView from 'react-native-webview';
-import { EmbedProps } from './util';
+import { EmbedProps, ErrorCallback } from './util';
 import React from 'react';
 
 class LiveboardEmbedClass<T extends LiveboardViewConfig = LiveboardViewConfig> extends TSEmbed<T> {
-    constructor(webViewRef: React.RefObject<WebView>, config?: T) {
-        super(webViewRef, config);
+    constructor(webViewRef: React.RefObject<WebView>, onErrorSDK?: ErrorCallback, config?: T) {
+        super(webViewRef, onErrorSDK, config);
     }
 }
 

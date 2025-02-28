@@ -15,7 +15,7 @@ export class EmbedBridge {
   private events: Record<string, Function[]> = {};
   private pendingReplies: Record<string, Function> = {};
 
-  constructor(private webViewRef: React.RefObject<WebView>) {}
+  constructor(private webViewRef: React.RefObject<WebView> | null) {}
 
   registerEmbedEvent(eventName: string, callback: Function) {
     if (!this.events[eventName]) {
@@ -25,7 +25,7 @@ export class EmbedBridge {
   }
 
   public trigger(hostEventName: string, payload?: any): Promise<any> {
-    if (!this.webViewRef.current) {
+    if (!this.webViewRef?.current) {
       console.warn("webview is not ready for host event");
       return Promise.resolve(undefined);
     }
@@ -95,7 +95,7 @@ export class EmbedBridge {
   public sendMessage(msg: EmbedMessage) {
     const msgString = JSON.stringify(msg);
     const jsCode = `window.postMessage(${msgString}, "*");true;`;
-    this.webViewRef.current?.injectJavaScript(jsCode);
+    this.webViewRef?.current?.injectJavaScript(jsCode);
   }
 
   private generateEventId(): string {
@@ -105,6 +105,6 @@ export class EmbedBridge {
   public destroy() {
     this.events = {};
     this.pendingReplies = {};
-    this.webViewRef = { current: null };
+    this.webViewRef = null;
   }
 }

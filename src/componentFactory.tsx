@@ -7,7 +7,8 @@ import {
     ViewConfig,
     MessageCallback,
 } from './types';
-import { EmbedProps } from './util';
+import { EmbedProps, ERROR_MESSAGE, notifyErrorSDK } from './util';
+import { Text } from 'react-native';
 
 export type EmbedEventHandlers = { [key in keyof typeof EmbedEvent as `on${Capitalize<key>}`]?: MessageCallback };
 
@@ -40,40 +41,56 @@ const getViewPropsAndListeners = <T extends EmbedProps, U extends ViewConfig>(
 export const componentFactory = <T extends typeof TSEmbed, V extends ViewConfig, U extends EmbedProps>(
     EmbedConstructor: T,
 ) => React.forwardRef<InstanceType<T>, U>((props, forwardedRef): JSX.Element | null => {
+    const { onErrorSDK, ...restProps } = props;
+    const originalEmbedProps = restProps as unknown as U;
+
     const embedInstance = React.useRef<InstanceType<T> | null>(null);
     const webViewRef = React.useRef<WebView>(null);
+    try{
     
-    if(!embedInstance.current) {
-        embedInstance.current = new EmbedConstructor(webViewRef) as InstanceType<T>;
-    }
-
-    const renderedWebView = React.useMemo((): JSX.Element | null => {
-        return embedInstance.current?.render() ?? null;
-    }, [props]);
-
-    const { viewConfig, listeners } = React.useMemo(() => getViewPropsAndListeners<U, V>(props as U), [props]);
-
-    React.useEffect(() => {
-        return () => {
-            embedInstance.current?.destroy();
-            embedInstance.current = null;
+        if(!embedInstance.current) {
+            embedInstance.current = new EmbedConstructor(webViewRef, onErrorSDK) as InstanceType<T>;
         }
-    }, [])
+
+        const renderedWebView = React.useMemo((): JSX.Element | null => {
+            return embedInstance.current?.render() ?? null;
+        }, [originalEmbedProps]);
+
+        const { viewConfig, listeners } = React.useMemo(() => getViewPropsAndListeners<U, V>(originalEmbedProps), [originalEmbedProps]);
+
+        React.useEffect(() => {
+            try{
+                return () => {
+                    embedInstance.current?.destroy();
+                    embedInstance.current = null;
+                }
+            } catch(error) {
+                notifyErrorSDK(error as Error, onErrorSDK, ERROR_MESSAGE.COMPONENT_UNMOUNTED_ERROR);
+            }
+        }, [])
+        
+        useDeepCompareEffect(() => {
+            try{
+                if(forwardedRef && typeof forwardedRef == 'object') {
+                    (forwardedRef as React.MutableRefObject<InstanceType<T> | null>).current = embedInstance?.current;
+                }
+                embedInstance?.current?.updateConfig(viewConfig);
     
-    useDeepCompareEffect(() => {
-        if(forwardedRef && typeof forwardedRef == 'object') {
-            (forwardedRef as React.MutableRefObject<InstanceType<T> | null>).current = embedInstance?.current;
+                Object.entries(listeners).forEach(([eventName, callback]) => {
+                    embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
+                });
+            } catch(error) {
+                notifyErrorSDK(error as Error, onErrorSDK, ERROR_MESSAGE.CONFIG_ERROR); 
+            }
+        }, [viewConfig]);
+
+        if(!embedInstance.current) {
+            return null;
         }
-        embedInstance?.current?.updateConfig(viewConfig);
 
-        Object.entries(listeners).forEach(([eventName, callback]) => {
-            embedInstance.current?.on(eventName as EmbedEvent, callback as MessageCallback);
-        });
-    }, [viewConfig]);
-
-    if(!embedInstance.current) {
-        return null;
+        return renderedWebView ?? null;
+    } catch(error) {
+        notifyErrorSDK(error as Error, onErrorSDK, ERROR_MESSAGE.INIT_ERROR);
+        return <><Text>Unable to render the thoughtspot Webview</Text></>;
     }
-
-    return renderedWebView ?? null;
 }); 

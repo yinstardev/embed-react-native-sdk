@@ -21,14 +21,6 @@ export const DEFAULT_WEBVIEW_CONFIG: WebViewProps = {
   keyboardDisplayRequiresUserAction: false,
   automaticallyAdjustContentInsets: false,
   scrollEnabled: false,
-  onError: (syntheticEvent) => {
-    const { nativeEvent } = syntheticEvent;
-    console.warn('Error in the WebView:', nativeEvent);
-  },
-  onHttpError: (syntheticEvent) => {
-    const { nativeEvent } = syntheticEvent;
-    console.warn('HTTP error in the WebView:', nativeEvent);
-  },
   style: {
     flex: 1,
     height: '100%',
