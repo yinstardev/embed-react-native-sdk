@@ -3,8 +3,8 @@ import { BaseEmbed, TSEmbedRef } from "./BaseEmbed";
 import { LiveboardViewConfig, EmbedEvent } from "./types";
 
 type EventHandlers = {
-  [K in EmbedEvent as `on${Capitalize<K>}`]?: (event: any) => void;
-}
+  [K in keyof typeof EmbedEvent as `on${Capitalize<string & K>}`]?: (event: any) => void;
+};
 
 export type LiveboardEmbedRef = TSEmbedRef;
 

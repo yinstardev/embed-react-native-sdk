@@ -5,13 +5,20 @@ import React, {
   forwardRef,
   useMemo,
   useState,
+  useCallback,
 } from "react";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
-import { EmbedBridge, EmbedMessage } from "./event-bridge";
+import { EmbedBridge } from "./event-bridge";
 import { embedConfigCache } from "./init";
+import * as Constants from './constants';
+import { MSG_TYPE, DEFAULT_WEBVIEW_CONFIG } from './constants';
+import { ERROR_MESSAGE, notifyErrorSDK } from "./utils";
+import { ViewConfig, EmbedEventHandlers, EmbedEvent } from "./types";
+import useDeepCompareEffect from "use-deep-compare-effect"; 
 
-interface BaseEmbedProps {
+interface BaseEmbedProps extends ViewConfig, EmbedEventHandlers {
   typeofEmbed: string;
+  onErrorSDK?: (error: Error) => void;
   [key: string]: any;
 }
 
@@ -22,77 +29,96 @@ export interface TSEmbedRef {
 export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
   (props, ref) => {
     const webViewRef = useRef<WebView>(null);
-    const embedBridge = useMemo(() => new EmbedBridge(webViewRef), []);
+    const [embedBridge, setEmbedBridge] = useState<EmbedBridge | null>(null);
     const [vercelShellLoaded, setVercelShellLoaded] = useState(false);
     const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
+    const [pendingHandlers, setPendingHandlers] = useState<Array<[string, Function]>>([]);
+    const [isWebViewReady, setIsWebViewReady] = useState(false);
 
-    useEffect(() => {
+    useDeepCompareEffect(() => {
       const newViewConfig: Record<string, any> = {};
       Object.keys(props).forEach((key) => {
         if (key.startsWith("on")) {
           const eventName = key.substring(2);
-          embedBridge.registerEmbedEvent(eventName, props[key]);
+          const embedEventName = EmbedEvent[eventName as keyof typeof EmbedEvent];
+          setPendingHandlers((prev) => [...prev, [embedEventName, props[key]]]);
         } else if (key !== 'embedType') {
           newViewConfig[key] = props[key];
         }
       });
       setViewConfig(newViewConfig);
-    }, [props, embedBridge]);
+    }, [props]);
 
-    useEffect(() => {
+    const sendConfigToShell = useCallback((bridge: EmbedBridge, config: Record<string, any>) => {
       if (!webViewRef.current || !vercelShellLoaded) {
-        console.log("[BaseEmbed] Waiting for Vercel shell to load...");
+        console.info("Waiting for Vercel shell to load...");
         return;
       }
 
       const initMsg = {
-        type: "INIT",
-        payload: embedConfigCache, 
+        type: MSG_TYPE.INIT,
+        payload: embedConfigCache,
       };
-      embedBridge.sendMessage(initMsg);
+
+      bridge.sendMessage(initMsg);
 
       const message = {
-        type: "EMBED",
+        type: MSG_TYPE.EMBED,
         embedType: props.embedType,
-        viewConfig: viewConfig,
+        viewConfig: config,
       };
-      embedBridge.sendMessage(message);
-    }, [viewConfig, embedBridge, props.embedType, vercelShellLoaded]);
+
+      bridge.sendMessage(message);
+    }, [props.embedType, vercelShellLoaded]);
+
+    useDeepCompareEffect(() => { 
+      if (embedBridge && vercelShellLoaded && isWebViewReady) {
+        sendConfigToShell(embedBridge, viewConfig);
+      }
+    }, [viewConfig, embedBridge, vercelShellLoaded, isWebViewReady, sendConfigToShell]);
 
     useImperativeHandle(ref, () => ({
       trigger: (hostEventName: string, payload?: any) => {
-        return embedBridge.trigger(hostEventName, payload);
+        return embedBridge?.trigger(hostEventName, payload) || Promise.resolve(undefined);
       },
     }));
+
+    const handleInitVercelShell = () => {
+      setVercelShellLoaded(true);
+      const newEmbedBridge = new EmbedBridge(webViewRef);
+      setEmbedBridge(newEmbedBridge);
+
+      pendingHandlers.forEach(([eventName, callback]) => {
+        newEmbedBridge.registerEmbedEvent(eventName, callback);
+      });
+      setPendingHandlers([]);
+      sendConfigToShell(newEmbedBridge, viewConfig);
+    };
 
     const handleMessage = (event: WebViewMessageEvent) => {
       try {
         const msg = JSON.parse(event.nativeEvent.data);
-        if (msg.type === "INIT_VERCEL_SHELL") {
-          setVercelShellLoaded(true);
+        if (msg.type === MSG_TYPE.INIT_VERCEL_SHELL) {
+          handleInitVercelShell();
+          setIsWebViewReady(true);
         }
-        embedBridge.handleMessage(msg);
+        embedBridge?.handleMessage(msg);
       } catch (err) {
-        console.error("[BaseEmbed] handleMessage parse error:", err);
+        notifyErrorSDK(err as Error, props.onErrorSDK, ERROR_MESSAGE.EVENT_ERROR);
       }
     };
 
     return (
       <WebView
         ref={webViewRef}
-        source={{ uri: "https://journey-withdrawal-such-folders.trycloudflare.com" }}
+        source={{ uri: Constants.VERCEL_SHELL_URL }}
         onMessage={handleMessage}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        allowFileAccess={true}
-        allowUniversalAccessFromFileURLs={true}
-        allowFileAccessFromFileURLs={true}
-        mixedContentMode="always"
-        onError= {(syntheticEvent) => {
+        {...DEFAULT_WEBVIEW_CONFIG}
+        onError={(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
           console.warn("[BaseEmbed] WebView error: ", nativeEvent);
         }}
-        onHttpError= {(syntheticEvent) => {
+        onHttpError={(syntheticEvent) => {
           const { nativeEvent } = syntheticEvent;
           console.warn("[BaseEmbed] HTTP error: ", nativeEvent);
         }}
