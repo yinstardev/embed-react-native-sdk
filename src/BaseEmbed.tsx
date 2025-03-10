@@ -37,15 +37,18 @@ export const BaseEmbed = forwardRef<TSEmbedRef, BaseEmbedProps>(
 
     useDeepCompareEffect(() => {
       const newViewConfig: Record<string, any> = {};
+      const newPendingHandlers: Array<[string, Function]> = [];
+
       Object.keys(props).forEach((key) => {
         if (key.startsWith("on")) {
           const eventName = key.substring(2);
           const embedEventName = EmbedEvent[eventName as keyof typeof EmbedEvent];
-          setPendingHandlers((prev) => [...prev, [embedEventName, props[key]]]);
+          newPendingHandlers.push([embedEventName, props[key]]);
         } else if (key !== 'embedType') {
           newViewConfig[key] = props[key];
         }
       });
+      setPendingHandlers((prev) => [...prev, ...newPendingHandlers]);
       setViewConfig(newViewConfig);
     }, [props]);
 
