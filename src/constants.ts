@@ -1,6 +1,6 @@
 import { WebViewProps } from 'react-native-webview';
 
-export const VERCEL_SHELL_URL = "https://embed-vercel-shell-git-class-based-final-yinstardevs-projects.vercel.app";
+export const VERCEL_SHELL_URL = "https://mobile-embed-shell.vercel.app";
 
 export enum MSG_TYPE {
     INIT = "INIT",
