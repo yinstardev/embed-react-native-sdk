@@ -1,3 +1,5 @@
+
+export type EmbedEventHandlers = { [key in keyof typeof EmbedEvent as `on${Capitalize<key>}`]?: MessageCallback };
 /**
  * The list of customization css variables. These
  * are the only allowed variables possible.

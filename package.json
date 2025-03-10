@@ -1,6 +1,6 @@
 {
   "name": "embed-react-native-sdk",
-  "version": "4.0.1",
+  "version": "5.0.1",
   "description": "React Native SDK for Embedding TS",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
@@ -8,9 +8,6 @@
   "files": [
     "dist/**/*"
   ],
-  "dependencies": {
-    "use-deep-compare-effect": "^1.8.1"
-  },
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-native": ">=0.60.0",
@@ -34,5 +31,8 @@
   },
   "scripts": {
     "build": "rollup -c"
+  },
+  "dependencies": {
+    "use-deep-compare-effect": "^1.8.1"
   }
 }
