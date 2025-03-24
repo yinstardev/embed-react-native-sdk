@@ -1,5 +1,111 @@
 
 export type EmbedEventHandlers = { [key in keyof typeof EmbedEvent as `on${Capitalize<key>}`]?: MessageCallback };
+
+/**
+ * Configuration for search options
+ */
+export interface SearchOptions {
+    /**
+     * The query string to pass to start the Conversation.
+     */
+    searchQuery: string;
+}
+
+/**
+ * The configuration for the embedded conversationEmbed options.
+ * @group Embed components
+ */
+export interface ConversationViewConfig extends ViewConfig {
+    /**
+     * The ID of the worksheet to use for the conversation.
+     */
+    worksheetId: string;
+    /**
+     * Ability to pass a starting search query to the conversation.
+     */
+    searchOptions?: SearchOptions;
+    /**
+     * disableSourceSelection : Disables data source selection
+     * but still display the selected data source.
+     * @example
+     * ```js
+     * const embed = new ConversationEmbed('#tsEmbed', {
+     *    ... // other options
+     *    disableSourceSelection : true,
+     * })
+     * ```
+     * @version SDK: 1.36.0 | Thoughtspot: 10.6.0.cl
+     */
+    disableSourceSelection?: boolean;
+    /**
+     * hideSourceSelection : Hide data source selection
+     * @example
+     * ```js
+     * const embed = new ConversationEmbed('#tsEmbed', {
+     *    ... // other options
+     *    hideSourceSelection : true,
+     * })
+     * ```
+     * @version SDK: 1.36.0 | Thoughtspot: 10.6.0.cl
+     */
+    hideSourceSelection?: boolean;
+    /**
+     * Flag to control Data panel experience
+     * @default false
+     * @version SDK: 1.36.0 | ThoughtSpot Cloud: 10.4.0.cl
+     * @example
+     * ```js
+     * const embed = new AppEmbed('#tsEmbed', {
+     *    ... // other options
+     *    dataPanelV2: true,
+     * })
+     * ```
+     */
+    dataPanelV2?: boolean;
+    /**
+     * showSpotterLimitations : show limitation text
+     * of the spotter underneath the chat input.
+     * default is false.
+     * @example
+     * ```js
+     * const embed = new ConversationEmbed('#tsEmbed', {
+     *    ... // other options
+     *    showSpotterLimitations : true,
+     * })
+     * ```
+     * @version SDK: 1.36.0 | Thoughtspot: 10.5.0.cl
+     */
+    showSpotterLimitations?: boolean;
+    /**
+     * hideSampleQuestions : Hide sample questions on
+     * the initial screen of the conversation.
+     * @example
+     * ```js
+     * const embed = new ConversationEmbed('#tsEmbed', {
+     *    ... // other options
+     *    hideSampleQuestions : true,
+     * })
+     * ```
+     * @version SDK: 1.36.0 | Thoughtspot: 10.6.0.cl
+     */
+    hideSampleQuestions?: boolean;
+}
+
+/**
+ * Embed ThoughtSpot AI Conversation.
+ * @group Embed components
+ * @example
+ * ```js
+ * const conversation = new ConversationEmbed('#tsEmbed', {
+ *   worksheetId: 'worksheetId',
+ *   searchOptions: {
+ *     searchQuery: 'searchQuery',
+ *   },
+ * });
+ * conversation.render();
+ * ```
+ * @version SDK: 1.33.1 | ThoughtSpot: 10.5.0.cl
+ */
 /**
  * The list of customization css variables. These
  * are the only allowed variables possible.
@@ -464,7 +570,7 @@ export interface CustomCssVariables {
      * Background color of checkbox.
      */
     '--ts-var-checkbox-background-color'?: string;
-  }
+}
 
 // import type { SessionInterface } from './answerService/answerService';
 export interface SessionInterface {
@@ -1087,7 +1193,7 @@ export interface EmbedConfig {
      * ```
      *  @version SDK 1.37.0 | ThoughtSpot: 10.7.0.cl
      */
-    customVariablesForThirdPartyTools?: Record< string, any >;
+    customVariablesForThirdPartyTools?: Record<string, any>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -2775,7 +2881,7 @@ export enum EmbedEvent {
      * ```
      * @version SDK: 1.35.12 | ThoughtSpot: 10.7.0.cl
      */
-     TableVizRendered = 'TableVizRendered',
+    TableVizRendered = 'TableVizRendered',
 }
 
 /**
@@ -5103,15 +5209,15 @@ export interface ColumnValue {
         [key: string]: any;
     };
     value:
-        | string
-        | number
-        | boolean
-        | {
-              v: {
-                  s: number;
-                  e: number;
-              };
-          };
+    | string
+    | number
+    | boolean
+    | {
+        v: {
+            s: number;
+            e: number;
+        };
+    };
 }
 
 export interface VizPoint {
