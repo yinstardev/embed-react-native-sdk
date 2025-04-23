@@ -17,12 +17,12 @@ If you want to integrate the SDK into your own local React Native application:
 
 1.  **Create a new Expo project** (if you don't have one):
     ```bash
-    # Creates a standard Expo project (likely JavaScript by default)
-    npx create-expo-app my-thoughtspot-app
+    # Creates a minimal Expo project using TypeScript (Recommended)
+    npx create-expo-app my-thoughtspot-app --template blank-typescript
     cd my-thoughtspot-app
 
-    # Or, for a minimal project using TypeScript:
-    # npx create-expo-app my-thoughtspot-app --template blank-typescript
+    # Alternatively, create a standard project (might use JavaScript or include routing):
+    # npx create-expo-app my-thoughtspot-app
     # cd my-thoughtspot-app
     ```
 
@@ -33,11 +33,14 @@ If you want to integrate the SDK into your own local React Native application:
     npx expo install react-native-webview
     ```
 
-4.  **Integrate into your App Layout:** Modify your main app file (e.g., `App.tsx` or `App.js`) to initialize the SDK and embed the `LiveboardEmbed` component.
+4.  **Integrate into your App:** Modify your main app file to initialize the SDK and embed the `LiveboardEmbed` component.
+    *   If you used the recommended `--template blank-typescript`, this will likely be `App.tsx`.
+    *   If you created a standard JavaScript project, this might be `App.js`.
+    *   If your project uses Expo Router (often included in templates other than `blank`), you might need to modify `app/_layout.tsx` or `app/_layout.js`.
 
-    **Example using TypeScript (e.g., in `App.tsx`):**
+    **Example (using TypeScript, suitable for `App.tsx` or `app/_layout.tsx`):**
     ```typescript
-    // In App.tsx (or your main app component if using TypeScript)
+    // In your main app component file (e.g., App.tsx)
     import React from 'react';
     import { View, StyleSheet } from 'react-native';
     import { AuthType, init, LiveboardEmbed } from '@thoughtspot/react-native-embed-sdk';
@@ -62,7 +65,7 @@ If you want to integrate the SDK into your own local React Native application:
     // --- End ThoughtSpot Initialization ---
 
 
-    export default function App() {
+    export default function App() { // Or your RootLayout component name
       // You might have other app setup logic here
 
       return (
@@ -97,9 +100,7 @@ If you want to integrate the SDK into your own local React Native application:
           }
      });
     ```
-    *(This example shows the basic structure. You'll need to adapt the initialization options and Liveboard ID)*
-
-    **Note:** If you are using a standard JavaScript project (`App.js`), the code structure will be similar, just without the TypeScript type annotations. You would still import the necessary components, call `init`, and use `<LiveboardEmbed />`.
+    *(This example shows the basic structure. You'll need to adapt the initialization options and Liveboard ID. If using JavaScript, remove the TypeScript type annotations.)*
 
 5.  **Replace Placeholders:** Remember to replace `your-ts-host`, `YOUR_AUTH_TOKEN`, and `your-liveboard-id` in the code with your actual ThoughtSpot environment details and authentication mechanism.
 
