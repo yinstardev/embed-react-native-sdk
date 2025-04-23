@@ -9,6 +9,20 @@
 You can play around with the code in Expo Snack:
 [Expo Snack Link](https://snack.expo.dev/@git/github.com/thoughtspot/developer-examples:mobile/react-native-embed-sdk)
 
+#### Note on Local Development
+
+The code within this `developer-examples` repository is pre-configured for the online Expo Snack environment linked above.
+
+If you want to integrate the SDK into your own local React Native application:
+
+1.  Create a new Expo project (if you don't have one):
+    ```bash
+    npx create-expo-app my-thoughtspot-app
+    cd my-thoughtspot-app
+    ```
+2.  Follow the [Installation](#installation) steps below to add the SDK to your project.
+3.  Use the code snippets provided in the [Quick Start](#quick-start) section within your local application, replacing placeholder values (like `your-ts-host`, `YOUR_AUTH_TOKEN`, and `your-liveboard-id`) with your actual ThoughtSpot environment details.
+
 ### Installation
 
 Add the SDK to your project using your preferred package manager:
